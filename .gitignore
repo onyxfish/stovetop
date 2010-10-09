@@ -2,3 +2,4 @@
 *.swp
 update.sh
 runserver.sh
+config.py
