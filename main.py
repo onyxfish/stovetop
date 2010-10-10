@@ -3,6 +3,12 @@
 import logging
 logging.getLogger().setLevel(logging.DEBUG)
 
+import gdata.alt.appengine
+import gdata.gauth
+import gdata.docs.data
+import gdata.docs.client
+import gdata.service
+import gdata.spreadsheet.service
 from google.appengine.api import memcache
 from google.appengine.api.urlfetch import fetch
 from google.appengine.ext import webapp
@@ -11,8 +17,8 @@ from google.appengine.ext.webapp import util
 import config
 from lib.escape import escapejs
 
-CSV_URL = 'https://spreadsheets.google.com/pub?key=%(key)s&hl=en&output=csv'
-
+CSV_URL = 'http://spreadsheets.google.com/feeds/download/spreadsheets/Export?key=%(key)s&exportFormat=csv'
+        
 class DocumentHandler(webapp.RequestHandler):
     def get(self, document_name):
         callback = self.request.get('callback')
@@ -28,9 +34,20 @@ class DocumentHandler(webapp.RequestHandler):
         content = memcache.get(document_name)
 
         if not content:
-            # TODO: handle http errors
-            result = fetch(CSV_URL % options)
-            csv = result.content
+            client = gdata.docs.client.DocsClient()
+            # TODO: handle retries and timeouts
+            client.ClientLogin(config.USER_EMAIL, config.USER_PASSWORD,
+                'stovetop.appspot.com')
+
+            spreadsheets_client = gdata.spreadsheet.service.SpreadsheetsService()
+            spreadsheets_client.ClientLogin(config.USER_EMAIL,
+                config.USER_PASSWORD, 'stovetop.appspot.com')
+
+            docs_token = client.auth_token
+            client.auth_token = gdata.gauth.ClientLoginToken(spreadsheets_client.GetClientLoginToken())
+
+            # TODO: handle retries and timeouts
+            csv = client.get_file_content(CSV_URL % options)
 
             if options['convert']:
                 # TODO: convert to JSON
@@ -49,7 +66,7 @@ class DocumentHandler(webapp.RequestHandler):
 
 def main():
     application = webapp.WSGIApplication([(r'/(.*)', DocumentHandler)],
-                                         debug=True)
+                                        debug=True)
     util.run_wsgi_app(application)
 
 

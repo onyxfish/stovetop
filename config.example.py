@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+USER_EMAIL = 'example@gmail.com'
+USER_PASSWORD = 'your_password_here'
+
 DOCUMENTS = {
     'boilertest': {
         # Google Docs key (from url)
