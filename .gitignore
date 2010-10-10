@@ -3,3 +3,4 @@
 update.sh
 runserver.sh
 config.py
+app.yaml
