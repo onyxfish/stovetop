@@ -1,0 +1,42 @@
+h1. Stovetop: A personal JSONP API for Google Spreadsheets
+
+h2. Tell me more
+
+Stovetop is a Google Appengine appliance you can use to serve you Google
+Spreadsheets as JSONP documents.
+
+h2. Installation
+
+NB: I recommend reading this entire document (especially the notes about
+security) before proceeding.
+
+To install your own copy of Stovetop follow these steps:
+
+* Setup a new Google Appengine application.
+* Install the Google Appengine SDK (wherever you like).
+* Copy app.example.yaml to app.yaml.
+* Update app.yaml with the application name you registered.
+* Copy config.example.py to config.py.
+* Update config.py with your application domain, google email, and password.
+* Create a new Google Spreadsheet and update config.py with its key.
+* Deploy the application to appengine.
+* Access http://yourapp.appspot.com/documentname to get your document via JSONP!
+
+h2. Stovetop + Boiler
+
+Stovetop can be combined with "Boiler":http://github.com/bouvard/boiler to
+create quasi-realtime spreadsheet-driven widgets for the web.
+
+h2. Notes about security
+
+This application requires you to put your Google Docs username and password into
+a plain text document. I recommend the following best practices for securing
+your app:
+
+* Create a separate Google account to use only for Stovetop.
+* Don't commit your config.py to source control.
+* Don't use the --insecure flag with appcfg.py.
+
+h2. License
+
+MIT.

@@ -39,7 +39,8 @@ class DocumentHandler(webapp.RequestHandler):
             if options['convert']:
                 # TODO: convert to JSON
                 # content = csv_to_json(csv)
-                raise NotImplementedError('JSON conversion is not yet supported.')
+                raise NotImplementedError(
+                    'JSON conversion is not yet supported.')
             else:
                 content = escapejs(csv)
 
@@ -51,21 +52,25 @@ class DocumentHandler(webapp.RequestHandler):
         self.response.out.write('%s("%s")' % (callback, content))
 
     def fetch_csv(self, options):
-        client = gdata.docs.client.DocsClient()
-        #gdata.alt.appengine.run_on_appengine(client, store_tokens=True, single_user_mode=True)
+        """
+        Retrieves a single Google spreadsheet as CSV using ClientLogin
+        authentication.
 
-        # TODO: handle retries and timeouts
-        client.ClientLogin(config.USER_EMAIL, config.USER_PASSWORD, config.APP_DOMAIN)
+        TODO: handle retries and timeouts on auth calls
+        TOOD: handle retries and timeouts on content fetching
+        """
+        client = gdata.docs.client.DocsClient()
+        client.ClientLogin(
+            config.USER_EMAIL, config.USER_PASSWORD, config.APP_DOMAIN)
 
         spreadsheets_client = gdata.spreadsheet.service.SpreadsheetsService()
-        #gdata.alt.appengine.run_on_appengine(spreadsheets_client, store_tokens=True, single_user_mode=True)
-
-        spreadsheets_client.ClientLogin(config.USER_EMAIL, config.USER_PASSWORD, config.APP_DOMAIN)
+        spreadsheets_client.ClientLogin(
+            config.USER_EMAIL, config.USER_PASSWORD, config.APP_DOMAIN)
 
         docs_token = client.auth_token
-        client.auth_token = gdata.gauth.ClientLoginToken(spreadsheets_client.GetClientLoginToken())
+        client.auth_token = gdata.gauth.ClientLoginToken(
+            spreadsheets_client.GetClientLoginToken())
 
-        # TODO: handle retries and timeouts
         return client.get_file_content(CSV_URL % options)
 
 def main():

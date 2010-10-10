@@ -6,8 +6,9 @@ USER_EMAIL = 'example@gmail.com'
 USER_PASSWORD = 'your_password_here'
 
 DOCUMENTS = {
-    'boilertest': {
-        # Google Docs key (from url)
+    # The name of the document to be used in URLs
+    'exampledoc': {
+        # Google spreadsheet key (from Google url)
         'key': '0AlXMOHKxzQVRdGt5aWV0UG9XaWVIVWVCYWRqVi11dGc',
         # Number of seconds to keep in memcache before refetching
         'ttl': 15,
