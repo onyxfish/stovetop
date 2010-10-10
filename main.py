@@ -34,20 +34,7 @@ class DocumentHandler(webapp.RequestHandler):
         content = memcache.get(document_name)
 
         if not content:
-            client = gdata.docs.client.DocsClient()
-            # TODO: handle retries and timeouts
-            client.ClientLogin(config.USER_EMAIL, config.USER_PASSWORD,
-                'stovetop.appspot.com')
-
-            spreadsheets_client = gdata.spreadsheet.service.SpreadsheetsService()
-            spreadsheets_client.ClientLogin(config.USER_EMAIL,
-                config.USER_PASSWORD, 'stovetop.appspot.com')
-
-            docs_token = client.auth_token
-            client.auth_token = gdata.gauth.ClientLoginToken(spreadsheets_client.GetClientLoginToken())
-
-            # TODO: handle retries and timeouts
-            csv = client.get_file_content(CSV_URL % options)
+            csv = self.fetch_csv(options)
 
             if options['convert']:
                 # TODO: convert to JSON
@@ -57,12 +44,29 @@ class DocumentHandler(webapp.RequestHandler):
                 content = escapejs(csv)
 
             memcache.set(document_name, content, options['ttl'])
-            logging.debug('set to cache')
 
         self.response.headers["Content-Type"] = "application/javascript"
         self.response.headers["Cache-Control"] = "no-cache"
         self.response.headers["Pragma"] = "no-cache"    
         self.response.out.write('%s("%s")' % (callback, content))
+
+    def fetch_csv(self, options):
+        client = gdata.docs.client.DocsClient()
+        #gdata.alt.appengine.run_on_appengine(client, store_tokens=True, single_user_mode=True)
+
+        # TODO: handle retries and timeouts
+        client.ClientLogin(config.USER_EMAIL, config.USER_PASSWORD, config.APP_DOMAIN)
+
+        spreadsheets_client = gdata.spreadsheet.service.SpreadsheetsService()
+        #gdata.alt.appengine.run_on_appengine(spreadsheets_client, store_tokens=True, single_user_mode=True)
+
+        spreadsheets_client.ClientLogin(config.USER_EMAIL, config.USER_PASSWORD, config.APP_DOMAIN)
+
+        docs_token = client.auth_token
+        client.auth_token = gdata.gauth.ClientLoginToken(spreadsheets_client.GetClientLoginToken())
+
+        # TODO: handle retries and timeouts
+        return client.get_file_content(CSV_URL % options)
 
 def main():
     application = webapp.WSGIApplication([(r'/(.*)', DocumentHandler)],

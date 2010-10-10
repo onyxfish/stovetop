@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+APP_DOMAIN = 'example.appspot.com'
+
 USER_EMAIL = 'example@gmail.com'
 USER_PASSWORD = 'your_password_here'
 
