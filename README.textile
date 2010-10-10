@@ -12,14 +12,14 @@ security) before proceeding.
 
 To install your own copy of Stovetop follow these steps:
 
-* Setup a new Google Appengine application.
 * Install the Google Appengine SDK (wherever you like).
+* Setup a new Google Appengine application.
 * Copy app.example.yaml to app.yaml.
 * Update app.yaml with the application name you registered.
 * Copy config.example.py to config.py.
 * Update config.py with your application domain, google email, and password.
 * Create a new Google Spreadsheet and update config.py with its key.
-* Deploy the application to appengine.
+* Deploy the application to appengine using appcfg.py.
 * Access http://yourapp.appspot.com/documentname to get your document via JSONP!
 
 h2. Stovetop + Boiler
