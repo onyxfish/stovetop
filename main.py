@@ -19,6 +19,9 @@ CSV_URL = 'http://spreadsheets.google.com/feeds/download/spreadsheets/Export?key
         
 class DocumentHandler(webapp.RequestHandler):
     def get(self, document_name):
+        """
+        Fetch a document from memcache or Google Docs, transform, and serve.
+        """
         callback = self.request.get('callback')
 
         if not callback:
@@ -31,7 +34,7 @@ class DocumentHandler(webapp.RequestHandler):
 
         content = memcache.get(document_name)
 
-        if True:
+        if not content:
             csv_data = self.fetch_csv(options)
 
             if options['convert']:
