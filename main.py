@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 
+import csv
 import logging
 logging.getLogger().setLevel(logging.DEBUG)
 
-import gdata.alt.appengine
 import gdata.gauth
-import gdata.docs.data
 import gdata.docs.client
-import gdata.service
 import gdata.spreadsheet.service
 from google.appengine.api import memcache
 from google.appengine.api.urlfetch import fetch
@@ -33,23 +31,20 @@ class DocumentHandler(webapp.RequestHandler):
 
         content = memcache.get(document_name)
 
-        if not content:
-            csv = self.fetch_csv(options)
+        if True:
+            csv_data = self.fetch_csv(options)
 
             if options['convert']:
-                # TODO: convert to JSON
-                # content = csv_to_json(csv)
-                raise NotImplementedError(
-                    'JSON conversion is not yet supported.')
+                content = self.csv_to_json(csv_data)
             else:
-                content = escapejs(csv)
+                content = '"%s"' % escapejs(csv_data)
 
             memcache.set(document_name, content, options['ttl'])
 
         self.response.headers["Content-Type"] = "application/javascript"
         self.response.headers["Cache-Control"] = "no-cache"
         self.response.headers["Pragma"] = "no-cache"    
-        self.response.out.write('%s("%s")' % (callback, content))
+        self.response.out.write('%s(%s)' % (callback, content))
 
     def fetch_csv(self, options):
         """
@@ -73,11 +68,18 @@ class DocumentHandler(webapp.RequestHandler):
 
         return client.get_file_content(CSV_URL % options)
 
+    def csv_to_json(self, csv_data):
+        """
+        Converts a Google-formatted CSV (\n line-endings) to JSON.
+        """
+        fileish = csv_data.split('\n')
+        reader = csv.DictReader(fileish)
+        return [row for row in reader] 
+
 def main():
     application = webapp.WSGIApplication([(r'/(.*)', DocumentHandler)],
                                         debug=True)
     util.run_wsgi_app(application)
-
 
 if __name__ == '__main__':
     main()
